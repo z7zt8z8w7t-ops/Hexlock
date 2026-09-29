@@ -64,3 +64,5 @@ button{border:0;border-radius:12px;padding:11px 14px;cursor:pointer;font-weight:
   .turnbuttons{flex-direction:column}
   .turnbuttons button{padding:9px 11px}
 }
+
+#replaceBtn.selected{outline:3px solid #fff;outline-offset:1px;background:#31536e}

@@ -29,6 +29,9 @@
   let rotation = 0;
   let chosenPlayers = 2;
   let scoredCycles = new Set();
+  let scoredCycleNodes = new Set();
+  let replaceMode = false;
+  let replaceTarget = null;
 
   const $ = s => document.querySelector(s);
   const boardSvg = $("#board");
@@ -48,6 +51,7 @@
   });
   $("#rulesBtn").addEventListener("click", () => $("#rulesModal").classList.remove("hidden"));
   $("#closeRules").addEventListener("click", () => $("#rulesModal").classList.add("hidden"));
+  $("#replaceBtn").addEventListener("click", () => toggleReplaceMode());
   $("#rotateBtn").addEventListener("click", () => {
     if (!selectedType) return;
     rotation = (rotation + 1) % 6;
@@ -71,7 +75,7 @@
       personalTurns: Array(chosenPlayers).fill(0),
       remaining: Array.from({length: chosenPlayers}, () => ({...startCounts}))
     };
-    selectedType = null; rotation = 0; scoredCycles = new Set();
+    selectedType = null; rotation = 0; scoredCycles = new Set(); scoredCycleNodes = new Set(); replaceMode = false; replaceTarget = null;
     $("#setup").classList.add("hidden");
     $("#game").classList.remove("hidden");
     $("#eventText").textContent = "Player 1: choose a tile.";
@@ -98,10 +102,28 @@
   }
 
   function clearSelection(){
-    selectedType = null; rotation = 0;
+    selectedType = null; rotation = 0; replaceMode = false; replaceTarget = null;
     $("#rotateBtn").disabled = true;
     $("#cancelBtn").disabled = true;
+    $("#replaceBtn").classList.remove("selected");
     $("#turnHint").textContent = "Choose a tile below.";
+    renderTray(); renderBoard();
+  }
+
+  function toggleReplaceMode(){
+    const p = state.current;
+    if(state.personalTurns[p] < 2){
+      $("#eventText").textContent = "Replacement unlocks on your third personal turn.";
+      return;
+    }
+    replaceMode = !replaceMode;
+    replaceTarget = null;
+    selectedType = null;
+    rotation = 0;
+    $("#rotateBtn").disabled = true;
+    $("#cancelBtn").disabled = !replaceMode;
+    $("#replaceBtn").classList.toggle("selected", replaceMode);
+    $("#turnHint").textContent = replaceMode ? "Tap one of your own unlocked tiles on the board." : "Choose a tile below.";
     renderTray(); renderBoard();
   }
 
@@ -112,7 +134,12 @@
     selectedType = type; rotation = 0;
     $("#rotateBtn").disabled = false;
     $("#cancelBtn").disabled = false;
-    $("#turnHint").textContent = "Rotate if needed, then tap a highlighted board space.";
+    if(replaceMode && replaceTarget){
+      $("#turnHint").textContent = "Rotate if needed, then tap the selected tile again to replace it.";
+    }else{
+      replaceMode = false; replaceTarget = null; $("#replaceBtn").classList.remove("selected");
+      $("#turnHint").textContent = "Rotate if needed, then tap a highlighted board space.";
+    }
     renderTray(); renderBoard();
   }
 
@@ -151,6 +178,7 @@
     $("#turnName").style.color = playerColors[p];
     const locked = state.personalTurns[p] < 2 && state.remaining[p].D > 0;
     $("#dLockText").textContent = locked ? `Six-way tile unlocks on personal turn 3 (${2-state.personalTurns[p]} turn${2-state.personalTurns[p]===1?"":"s"} to go)` : "Six-way tile available";
+    $("#replaceBtn").disabled = state.personalTurns[p] < 2;
     const total = Object.values(state.remaining[p]).reduce((a,b)=>a+b,0);
     $("#remainingText").textContent = `${total} remaining`;
   }
@@ -231,10 +259,53 @@
     if(segs.some(([a,b])=>a==="c"||b==="c")){
       g.appendChild(svgEl("circle",{cx,cy,r:5,fill:"#1B4F9A",class:"routeCenter"}));
     }
+    if(replaceMode && pos.player===state.current){
+      const tileNodeKeys = tileGraphNodeKeys(pos);
+      const lockedByScore = tileNodeKeys.some(k => scoredCycleNodes.has(k));
+      if(!lockedByScore){
+        const hit=svgEl("polygon",{points:hexPoints(cx,cy,R-2),fill:"transparent",stroke:"#ffffff","stroke-width":"3","stroke-dasharray":"8 6"});
+        hit.style.cursor="pointer";
+        hit.addEventListener("click",()=>chooseReplaceTarget(pos));
+        g.appendChild(hit);
+      }
+    }
     boardSvg.appendChild(g);
   }
 
+  function chooseReplaceTarget(pos){
+    if(!replaceMode) return;
+    const tileNodeKeys = tileGraphNodeKeys(pos);
+    if(tileNodeKeys.some(k => scoredCycleNodes.has(k))){
+      $("#eventText").textContent = "That tile is part of a scored loop and cannot be replaced.";
+      return;
+    }
+    replaceTarget = pos;
+    selectedType = null;
+    rotation = 0;
+    $("#turnHint").textContent = "Now choose an unused replacement tile from your tray.";
+    renderTray(); renderBoard();
+  }
+
+  function tileGraphNodeKeys(pos){
+    const [cx,cy]=center(pos.c,pos.r);
+    const keys=new Set([graphNodeKey(cx,cy)]);
+    const segs=tileSpokes[pos.type];
+    for(const [a0,b0] of segs){
+      for(const t of [a0,b0]){
+        if(t==="c") continue;
+        const a=(t+pos.rot)%6;
+        const x=cx+edgeVec[a][0]*R*0.866, y=cy+edgeVec[a][1]*R*0.866;
+        keys.add(graphNodeKey(x,y));
+      }
+    }
+    return [...keys];
+  }
+
   function placeSelected(c,r){
+    if(replaceMode && replaceTarget){
+      if(!selectedType) return;
+      return executeReplacement();
+    }
     if(!selectedType || !legalCell(c,r)) return;
     const p=state.current;
     state.placed[key(c,r)]={c,r,type:selectedType,rot:rotation,player:p};
@@ -257,6 +328,47 @@
       renderAll();
       showGameOver();
       return;
+    }
+
+    state.current=(state.current+1)%state.n;
+    renderAll();
+    $("#passTitle").textContent=`Player ${state.current+1}`;
+    $("#passModal").classList.remove("hidden");
+  }
+
+  function executeReplacement(){
+    const p=state.current;
+    if(!replaceTarget || !selectedType) return;
+
+    const oldType = replaceTarget.type;
+    state.remaining[p][oldType] += 1;
+    state.remaining[p][selectedType] -= 1;
+
+    state.placed[key(replaceTarget.c,replaceTarget.r)] = {
+      c: replaceTarget.c,
+      r: replaceTarget.r,
+      type: selectedType,
+      rot: rotation,
+      player: p
+    };
+
+    state.personalTurns[p]++;
+    state.moveNo++;
+
+    const newly = detectNewSixTurnLoops();
+    if(newly.length){
+      state.scores[p] += newly.length;
+      $("#eventText").textContent = `Player ${p+1} replaced a tile and completed ${newly.length} new loop${newly.length===1?"":"s"}, scoring ${newly.length} point${newly.length===1?"":"s"}!`;
+    }else{
+      $("#eventText").textContent = `Player ${p+1} replaced one of their own tiles.`;
+    }
+
+    selectedType=null; rotation=0; replaceMode=false; replaceTarget=null;
+    $("#replaceBtn").classList.remove("selected");
+    $("#rotateBtn").disabled=true; $("#cancelBtn").disabled=true;
+
+    if(gameFinished()){
+      renderAll(); showGameOver(); return;
     }
 
     state.current=(state.current+1)%state.n;
@@ -387,6 +499,7 @@
     for(const [canon,cyc] of all){
       if(!scoredCycles.has(canon)){
         scoredCycles.add(canon);
+        cyc.forEach(n => scoredCycleNodes.add(n));
         newOnes.push(cyc);
       }
     }

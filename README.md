@@ -30,3 +30,6 @@ The app is entirely static.
 
 ## Notes
 This is a prototype implementation of the current playtest rules. The automated loop detector enumerates simple cycles and counts direction changes. Complex heavily connected late-game boards can produce many candidate cycles, so this should still be validated against physical playtests.
+
+## Replacement rule test
+From personal turn 3, a player may replace one of their own tiles instead of placing a new tile. The removed tile returns to that player's supply. Tiles that have become part of a scored loop are locked and cannot be replaced.
