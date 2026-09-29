@@ -4,7 +4,8 @@ A local, offline-capable digital prototype of HEXLOCK.
 
 ## Features
 - 2–4 player local pass-and-play
-- Exact current tile mix: 4 A / 4 B / 3 C / 1 D / 2 E / 2 F
+- Current compact-loop test mix: 8 B / 3 C / 1 D / 4 E
+- A and F removed for this compact-loop test version
 - D tile locked for each player's first two personal turns
 - Touch-friendly tile selection and 60° rotation
 - 16×5 hex board

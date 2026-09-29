@@ -9,8 +9,8 @@
   const X0 = 52, Y0 = 70;
 
   const playerColors = ["#BFE3FF","#FFD84D","#F6B7C5","#BFE6C4"];
-  const typeOrder = ["A","B","C","D","E","F"];
-  const startCounts = {A:4,B:4,C:3,D:1,E:2,F:2};
+  const typeOrder = ["B","C","D","E"];
+  const startCounts = {B:8,C:3,D:1,E:4};
 
   // Edge order: UR, TOP, UL, LL, BOTTOM, LR.
   const edgeAngles = [30,90,150,210,270,330];
