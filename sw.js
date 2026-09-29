@@ -1,4 +1,4 @@
-const CACHE='hex-flip-v3';
+const CACHE='hex-flip-v4';
 const ASSETS=['./','./index.html','./styles.css','./engine.js','./ai.js','./app.js','./manifest.json','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)));

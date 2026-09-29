@@ -1,6 +1,6 @@
 # Hex Flip PWA
 
-A two-player, offline-capable game with blue and yellow hexagonal counters. Play locally against a person or choose a computer opponent (Easy, Medium, Hard). Big captures animate and show the number of directions and counters flipped. The 61-cell board starts with two blue and two yellow counters. Blue moves first. A legal move must bracket and flip at least one opposing counter along a straight hex-grid direction. The app handles automatic passes, scores, game end, one-move undo (a full turn when playing the computer), hints, and local autosave. Existing saved Hex Flip games remain playable.
+A two-player, offline-capable game with a large 61-cell board, a black theme, and blue and yellow hexagonal counters. Play locally against a person or choose a computer opponent (Easy, Medium, Hard). Big captures animate and show the number of directions and counters flipped. The board starts with two blue and two yellow counters. Blue moves first. A legal move must bracket and flip at least one opposing counter along a straight hex-grid direction. The app handles automatic passes, scores, game end, one-move undo (a full turn when playing the computer), hints, and local autosave. Existing saved Hex Flip games remain playable.
 
 ## Replace the Hexlock PWA
 
