@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#13263a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <title>HEXLOCK</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div>
+        <h1>HEXLOCK</h1>
+        <div class="sub">Digital prototype • local pass-and-play</div>
+      </div>
+      <button id="newGameBtn" class="ghost">New game</button>
+    </header>
+
+    <section id="setup" class="panel setup">
+      <h2>Start a game</h2>
+      <div class="player-choice">
+        <button class="playerCount active" data-n="2">2 players</button>
+        <button class="playerCount" data-n="3">3 players</button>
+        <button class="playerCount" data-n="4">4 players</button>
+      </div>
+      <p>Each player gets 16 tiles: 4 straight, 4 corner, 3 three-way, 1 six-way, 2 cross, 2 four-way.</p>
+      <button id="startBtn" class="primary">Start game</button>
+      <button id="rulesBtn" class="ghost">How to play</button>
+    </section>
+
+    <main id="game" class="hidden">
+      <section class="scorebar" id="scorebar"></section>
+
+      <section class="turnpanel">
+        <div>
+          <div class="eyebrow">CURRENT TURN</div>
+          <div id="turnName" class="turnname">Player 1</div>
+          <div id="turnHint" class="turnhint">Choose a tile below.</div>
+        </div>
+        <div class="turnbuttons">
+          <button id="rotateBtn" class="primary" disabled>Rotate ↻</button>
+          <button id="cancelBtn" class="ghost" disabled>Cancel</button>
+        </div>
+      </section>
+
+      <section class="boardWrap">
+        <svg id="board" viewBox="0 0 1160 420" role="img" aria-label="HEXLOCK board"></svg>
+      </section>
+
+      <section class="traypanel">
+        <div class="trayhead">
+          <div>
+            <div class="eyebrow">YOUR TILES</div>
+            <div id="dLockText" class="locktext"></div>
+          </div>
+          <div id="remainingText" class="remaining"></div>
+        </div>
+        <div id="tileTray" class="tileTray"></div>
+      </section>
+
+      <section class="eventpanel">
+        <div id="eventText">Place a tile to begin.</div>
+      </section>
+    </main>
+
+    <div id="rulesModal" class="modal hidden">
+      <div class="modalCard">
+        <button class="close" id="closeRules">×</button>
+        <h2>How to play</h2>
+        <div class="rulesGrid">
+          <div><strong>Place:</strong> Pick one unused tile, rotate it, then tap a legal empty hex. After the first tile, placements must touch an existing tile by a full edge.</div>
+          <div><strong>D tile:</strong> The six-way tile cannot be played on either of your first two personal turns. It unlocks on your third turn.</div>
+          <div><strong>Score:</strong> Complete a closed route with exactly six direction changes. The player whose placement completes it scores 1 point.</div>
+          <div><strong>Sides:</strong> A side may continue straight through several tiles. The six sides do not have to be equal lengths.</div>
+          <div><strong>Finish:</strong> The game ends when everyone has used all 16 tiles, or no legal placements remain. Highest score wins.</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="passModal" class="modal hidden">
+      <div class="modalCard passCard">
+        <div class="eyebrow">PASS THE DEVICE</div>
+        <h2 id="passTitle">Player 2</h2>
+        <p>Tap below when you're ready.</p>
+        <button id="passReadyBtn" class="primary">Ready</button>
+      </div>
+    </div>
+
+    <div id="gameOverModal" class="modal hidden">
+      <div class="modalCard passCard">
+        <div class="eyebrow">GAME OVER</div>
+        <h2 id="gameOverTitle"></h2>
+        <p id="gameOverText"></p>
+        <button id="playAgainBtn" class="primary">Play again</button>
+      </div>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
