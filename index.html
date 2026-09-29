@@ -2,105 +2,50 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-  <meta name="theme-color" content="#13263a">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#18314a">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Hex Flip">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <title>HEXLOCK</title>
   <link rel="stylesheet" href="styles.css">
+  <title>Hex Flip</title>
 </head>
 <body>
-  <div id="app">
-    <header class="topbar">
-      <div>
-        <h1>HEXLOCK</h1>
-        <div class="sub">Digital prototype • local pass-and-play</div>
-      </div>
-      <button id="newGameBtn" class="ghost">New game</button>
+  <div class="app">
+    <header class="header">
+      <div class="brand"><span class="brand-icon" aria-hidden="true">⬡</span><div><h1>HEX FLIP</h1><p>Pass-and-play hex strategy</p></div></div>
+      <button id="rulesBtn" class="small-btn">Rules</button>
     </header>
-
-    <section id="setup" class="panel setup">
-      <h2>Start a game</h2>
-      <div class="player-choice">
-        <button class="playerCount active" data-n="2">2 players</button>
-        <button class="playerCount" data-n="3">3 players</button>
-        <button class="playerCount" data-n="4">4 players</button>
-      </div>
-      <p>Each player gets 16 tiles: 8 corner, 3 three-way, 1 six-way, 4 cross. Straight and four-way tiles are removed in this test version.</p>
-      <button id="startBtn" class="primary">Start game</button>
-      <button id="rulesBtn" class="ghost">How to play</button>
-    </section>
-
-    <main id="game" class="hidden">
-      <section class="scorebar" id="scorebar"></section>
-
-      <section class="turnpanel">
-        <div>
-          <div class="eyebrow">CURRENT TURN</div>
-          <div id="turnName" class="turnname">Player 1</div>
-          <div id="turnHint" class="turnhint">Choose a tile below.</div>
-        </div>
-        <div class="turnbuttons">
-          <button id="replaceBtn" class="ghost">Replace own tile</button>
-          <button id="rotateBtn" class="primary" disabled>Rotate ↻</button>
-          <button id="cancelBtn" class="ghost" disabled>Cancel</button>
-        </div>
+    <main>
+      <section class="game-header" aria-label="Score and current turn">
+        <div id="blackScore" class="score black"><span class="disc black-disc"></span><span><strong>BLACK</strong><b id="blackCount">2</b></span></div>
+        <div class="turn" id="turnPanel"><span class="turn-label">TO PLAY</span><strong id="turnName">Black</strong><span id="turnDetail">Tap a glowing hex</span></div>
+        <div id="whiteScore" class="score white"><span class="disc white-disc"></span><span><strong>WHITE</strong><b id="whiteCount">2</b></span></div>
       </section>
-
-      <section class="boardWrap">
-        <svg id="board" viewBox="0 0 1160 420" role="img" aria-label="HEXLOCK board"></svg>
+      <section class="board-panel" aria-label="Game board">
+        <svg id="board" viewBox="-285 -265 570 530" role="grid" aria-label="61-cell Hex Flip board"></svg>
       </section>
-
-      <section class="traypanel">
-        <div class="trayhead">
-          <div>
-            <div class="eyebrow">YOUR TILES</div>
-            <div id="dLockText" class="locktext"></div>
-          </div>
-          <div id="remainingText" class="remaining"></div>
-        </div>
-        <div id="tileTray" class="tileTray"></div>
+      <p class="status" id="status" role="status" aria-live="polite">Black moves first. Tap a highlighted hex to capture.</p>
+      <section class="controls" aria-label="Game controls">
+        <label class="toggle"><input id="hintsToggle" type="checkbox" checked><span>Show legal moves</span></label>
+        <div class="actions"><button id="undoBtn" disabled>Undo</button><button id="newGameBtn">New game</button></div>
       </section>
-
-      <section class="eventpanel">
-        <div id="eventText">Place a tile to begin.</div>
-      </section>
+      <p class="footnote">61 hexes · two players · plays offline after first load</p>
     </main>
-
-    <div id="rulesModal" class="modal hidden">
-      <div class="modalCard">
-        <button class="close" id="closeRules">×</button>
-        <h2>How to play</h2>
-        <div class="rulesGrid">
-          <div><strong>Place:</strong> Pick one unused tile, rotate it, then tap a legal empty hex. After the first tile, placements must touch an existing tile by a full edge.</div><div><strong>Replace:</strong> From your third personal turn, instead of placing you may replace one of your own tiles. The removed tile returns to your supply. Tiles already used in a scored loop cannot be replaced.</div>
-          <div><strong>D tile:</strong> The six-way tile cannot be played on either of your first two personal turns. It unlocks on your third turn.</div>
-          <div><strong>Score:</strong> Complete a closed route with exactly six direction changes. The player whose placement completes it scores 1 point.</div>
-          <div><strong>Sides:</strong> A side may continue straight through several tiles. The six sides do not have to be equal lengths.</div>
-          <div><strong>Finish:</strong> The game ends when everyone has used all 16 tiles, or no legal placements remain. Highest score wins.</div>
-        </div>
-      </div>
-    </div>
-
-    <div id="passModal" class="modal hidden">
-      <div class="modalCard passCard">
-        <div class="eyebrow">PASS THE DEVICE</div>
-        <h2 id="passTitle">Player 2</h2>
-        <p>Tap below when you're ready.</p>
-        <button id="passReadyBtn" class="primary">Ready</button>
-      </div>
-    </div>
-
-    <div id="gameOverModal" class="modal hidden">
-      <div class="modalCard passCard">
-        <div class="eyebrow">GAME OVER</div>
-        <h2 id="gameOverTitle"></h2>
-        <p id="gameOverText"></p>
-        <button id="playAgainBtn" class="primary">Play again</button>
-      </div>
-    </div>
   </div>
+  <dialog id="rulesDialog" aria-labelledby="rulesTitle">
+    <div class="dialog-head"><h2 id="rulesTitle">How to play</h2><button id="closeRules" aria-label="Close rules">×</button></div>
+    <ol>
+      <li><strong>Black starts.</strong> Place one counter on an empty hex. Your move must flip at least one white counter.</li>
+      <li><strong>Flip a line</strong> when one or more opponent counters lie in a straight line between your new counter and one already yours. Check all six directions and flip every line you trap.</li>
+      <li><strong>Pass automatically</strong> if you cannot flip. The other player takes another turn.</li>
+      <li><strong>Finish</strong> when neither player can move, or the board is full. Most counters wins; equal counts tie.</li>
+    </ol>
+    <button class="primary" id="gotItBtn">Got it</button>
+  </dialog>
+  <script src="engine.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

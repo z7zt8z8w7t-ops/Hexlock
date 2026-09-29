@@ -1,21 +1,14 @@
 {
-  "name": "HEXLOCK",
-  "short_name": "HEXLOCK",
+  "name": "Hex Flip",
+  "short_name": "Hex Flip",
+  "description": "A two-player hexagonal flip-and-capture game.",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#0d1722",
-  "theme_color": "#13263a",
-  "description": "HEXLOCK digital prototype: local pass-and-play hex route strategy game.",
+  "background_color": "#e8f1f2",
+  "theme_color": "#18314a",
   "icons": [
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
+    {"src":"icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
+    {"src":"icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
   ]
 }
